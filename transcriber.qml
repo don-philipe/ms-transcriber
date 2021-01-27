@@ -33,7 +33,7 @@ MuseScore {
     FileDialog {
         id: fileDialog
         title: qsTr("Please choose an audio file")
-        nameFilters: [ "Audio files (*.wav *.mp3)" ]
+        nameFilters: [ "Audio files (*.wav *.mp3 *.m4a *.ogg)" ]
         onAccepted: {
             var filename = fileDialog.fileUrl
 
@@ -47,16 +47,33 @@ MuseScore {
         }
     }
 
+    Timer {
+        id: playingTimer
+        interval: 100
+        running: true
+        repeat: true
+        onTriggered: {
+            progressBar.value = audioPlayer.position / audioPlayer.duration
+        }
+    }
+
     Audio {
         id: audioPlayer
         onPlaying: {
-            progressBar.value = audioPlayer.position / audioPlayer.duration
+            playingTimer.start()
+        }
+        onStopped: {
+            playingTimer.stop()
+        }
+        onPaused: {
+            playingTimer.stop()
         }
     }
 
     GridLayout {
         anchors.fill: parent
         columns: 6
+        anchors.leftMargin: 5
 
         ProgressBar {
             id: progressBar
