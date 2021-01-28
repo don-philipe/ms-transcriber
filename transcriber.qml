@@ -20,15 +20,23 @@ MuseScore {
 
     property bool playing: false
 
-    function seek (amount) {
-        audioPlayer.seek(audioPlayer.position + amount)
+    // Update progress bar with current audio player position.
+    function updateProgress () {
         progressBar.value = audioPlayer.position / audioPlayer.duration
     }
 
-    FileIO {
-        id: audioFile
-        onError: console.log(msg + "  Filename = " + audioFile.source)
+    // Seek forward or backward in the current audio track by the given positiv or negative
+    // amount of milliseconds.
+    function seek (amount) {
+        audioPlayer.seek(audioPlayer.position + amount)
+        updateProgress()
     }
+
+// use for file readability check?
+//    FileIO {
+//        id: audioFile
+//        onError: console.log(msg + "  Filename = " + audioFile.source)
+//    }
 
     FileDialog {
         id: fileDialog
@@ -38,8 +46,7 @@ MuseScore {
             var filename = fileDialog.fileUrl
 
             if (filename) {
-                audioFile.source = filename
-                audioPlayer.source = audioFile.source
+                audioPlayer.source = filename
                 buttonPlayPause.enabled = true
                 buttonForward.enabled = true
                 buttonBack.enabled = true
@@ -53,7 +60,7 @@ MuseScore {
         running: true
         repeat: true
         onTriggered: {
-            progressBar.value = audioPlayer.position / audioPlayer.duration
+            updateProgress()
         }
     }
 
@@ -72,11 +79,14 @@ MuseScore {
 
     GridLayout {
         anchors.fill: parent
-        columns: 6
+        columns: 5
         anchors.leftMargin: 5
+        anchors.rightMargin: 5
 
         ProgressBar {
             id: progressBar
+            Layout.columnSpan: 5
+            Layout.fillWidth: true
             background: Rectangle {
                 color: "#aaaaaa"
             }
@@ -86,7 +96,9 @@ MuseScore {
             id : buttonOpenFile
             text: qsTr("Open file")
             onClicked: {
-                fileDialog.open();
+                audioPlayer.stop()
+                updateProgress()
+                fileDialog.open()
             }
         }
 
@@ -127,7 +139,7 @@ MuseScore {
             text: qsTr("Quit")
             onClicked: {
                 audioPlayer.stop()
-                Qt.quit();
+                Qt.quit()
             }
         }
     }
