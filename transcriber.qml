@@ -19,16 +19,42 @@ MuseScore {
     onRun: {}
 
     property bool playing: false
+    property variant totalDurationSec: qsTr("0:00")
+
+    function millisToMinSec (milliseconds) {
+        let seconds = milliseconds / 1000
+        //TODO cast seconds to integer
+        let i = 0
+        while (seconds > 59) {
+            seconds = seconds - 60
+            i++
+        }
+        seconds = seconds.toFixed()
+
+        let zero = qsTr("")
+        if (seconds < 10) {
+            zero = qsTr("0")
+        }
+
+        return qsTr(i + ":" + zero + seconds)
+    }
 
     // Update progress bar with current audio player position.
     function updateProgress () {
         progressBar.value = audioPlayer.position / audioPlayer.duration
+        progressText.text = qsTr(millisToMinSec(audioPlayer.position) + " / " + totalDurationSec)
     }
 
     // Seek forward or backward in the current audio track by the given positiv or negative
     // amount of milliseconds.
     function seek (amount) {
         audioPlayer.seek(audioPlayer.position + amount)
+        updateProgress()
+    }
+
+    // Prepare for audio playing. Update total duration display etc.
+    function processAudio () {
+        totalDurationSec = millisToMinSec(audioPlayer.duration)
         updateProgress()
     }
 
@@ -50,6 +76,22 @@ MuseScore {
                 buttonPlayPause.enabled = true
                 buttonForward.enabled = true
                 buttonBack.enabled = true
+                bufferTimer.start()
+            }
+        }
+    }
+
+    // For polling the audio buffer state so that finally processAudio() can be called.
+    Timer {
+        id: bufferTimer
+        interval: 20
+        running: false
+        repeat: false
+        onTriggered: {
+            if (audioPlayer.bufferProgress == 1) {
+                processAudio()
+            } else {
+                bufferTimer.restart()
             }
         }
     }
@@ -85,11 +127,16 @@ MuseScore {
 
         ProgressBar {
             id: progressBar
-            Layout.columnSpan: 5
+            Layout.columnSpan: 4
             Layout.fillWidth: true
             background: Rectangle {
                 color: "#aaaaaa"
             }
+        }
+
+        Text {
+            id: progressText
+            text: qsTr("NA / NA")
         }
 
         Button {
