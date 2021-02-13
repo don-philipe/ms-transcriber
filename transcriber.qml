@@ -23,7 +23,6 @@ MuseScore {
 
     function millisToMinSec (milliseconds) {
         let seconds = milliseconds / 1000
-        //TODO cast seconds to integer
         let i = 0
         while (seconds > 59) {
             seconds = seconds - 60
