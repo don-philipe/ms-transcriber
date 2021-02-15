@@ -20,6 +20,7 @@ MuseScore {
 
     property bool playing: false
     property variant totalDurationSec: qsTr("0:00")
+    property variant trackTitle: qsTr("NA")
 
     function millisToMinSec (milliseconds) {
         let seconds = milliseconds / 1000
@@ -51,9 +52,16 @@ MuseScore {
         updateProgress()
     }
 
-    // Prepare for audio playing. Update total duration display etc.
+    // Prepare for audio playing. Update total duration, checks for track title etc.
     function processAudio () {
         totalDurationSec = millisToMinSec(audioPlayer.duration)
+
+        if (audioPlayer.metaData.title !== undefined) {
+            trackTitle = qsTr(audioPlayer.metaData.title)
+        } else {
+            trackTitle = qsTr(audioPlayer.source.toString())
+        }
+
         updateProgress()
     }
 
@@ -123,6 +131,13 @@ MuseScore {
         columns: 5
         anchors.leftMargin: 5
         anchors.rightMargin: 5
+        height: 25
+
+        Text {
+            id: trackTitleText
+            Layout.columnSpan: 5
+            text: qsTr(trackTitle)
+        }
 
         ProgressBar {
             id: progressBar
