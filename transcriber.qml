@@ -6,6 +6,8 @@ import QtMultimedia 5.15
 import MuseScore 3.0
 import FileIO 3.0
 
+//TODO change playback speed: load audio data into additional property and do pitch correction via JS
+
 MuseScore {
     menuPath: "Plugins.transcriber"
     version: "0.1"
@@ -49,6 +51,13 @@ MuseScore {
     // amount of milliseconds.
     function seek (amount) {
         audioPlayer.seek(audioPlayer.position + amount)
+        updateProgress()
+    }
+
+    // Go to relative position in current track. Used by click on progress bar. The relative position
+    // must be a value between 0.0 and 1.0
+    function goToTrackPos (relPos) {
+        audioPlayer.seek(audioPlayer.duration * relPos)
         updateProgress()
     }
 
@@ -145,6 +154,16 @@ MuseScore {
             Layout.fillWidth: true
             background: Rectangle {
                 color: "#aaaaaa"
+            }
+
+            MouseArea {
+                id: mouse
+                anchors.fill: parent
+                onClicked: {
+                    var pos = mapToItem(progressBar, mouse.x, mouse.y)
+                    var relPos = pos.x / progressBar.width
+                    goToTrackPos(relPos)
+                }
             }
         }
 
