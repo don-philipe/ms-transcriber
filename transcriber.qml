@@ -5,8 +5,10 @@ import QtQuick.Controls 2.15
 import QtMultimedia 5.15
 import MuseScore 3.0
 import FileIO 3.0
+//import "lib.js" as JsLib
 
 //TODO change playback speed: load audio data into additional property and do pitch correction via JS
+//TODO add markers and areas
 
 MuseScore {
     menuPath: "Plugins.transcriber"
@@ -17,7 +19,6 @@ MuseScore {
     dockArea: "top"
 
     id:mainDock
-    height: 300;
     onRun: {}
 
     property bool playing: false
@@ -140,7 +141,6 @@ MuseScore {
         columns: 5
         anchors.leftMargin: 5
         anchors.rightMargin: 5
-        height: 25
 
         Text {
             id: trackTitleText
@@ -152,8 +152,10 @@ MuseScore {
             id: progressBar
             Layout.columnSpan: 4
             Layout.fillWidth: true
+            Layout.fillHeight: true
             background: Rectangle {
                 color: "#aaaaaa"
+                implicitHeight: 8
             }
 
             MouseArea {
